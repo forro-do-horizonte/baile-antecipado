@@ -1,0 +1,77 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Fonte EldesCordel */
+@font-face {
+  font-family: 'EldesCordel';
+  src: url('/fonts/EldesCordel.otf') format('opentype'),
+       url('/fonts/EldesCordel.ttf') format('truetype'),
+       local('EldesCordel');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Fonte SpecialElite */
+@font-face {
+  font-family: 'SpecialElite';
+  src: url('/fonts/SpecialElite.ttf') format('truetype'),
+       url('/fonts/SpecialElite.otf') format('opentype'),
+       local('SpecialElite');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: #F5F1E8;
+  color: #3D2817;
+  line-height: 1.6;
+}
+
+/* Estilo cordel - padrões decorativos */
+@layer utilities {
+  .cordel-pattern {
+    background-image: 
+      repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(61, 40, 23, 0.1) 2px, rgba(61, 40, 23, 0.1) 4px);
+  }
+  
+  .cordel-border {
+    border: 2px solid #3D2817;
+    box-shadow: 
+      inset 0 0 0 1px rgba(61, 40, 23, 0.1),
+      0 2px 4px rgba(61, 40, 23, 0.1);
+  }
+
+  /* Estilo de texto cordel - usando fonte SpecialElite */
+  .cordel-text {
+    font-family: 'SpecialElite', 'EldesCordel', 'Georgia', 'Times New Roman', serif;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    font-weight: normal;
+    text-shadow: 1px 1px 0px rgba(61, 40, 23, 0.15);
+  }
+
+  .cordel-text-small {
+    font-family: 'SpecialElite', 'EldesCordel', 'Georgia', 'Times New Roman', serif;
+    letter-spacing: 0.03em;
+    font-weight: normal;
+    text-shadow: 0.5px 0.5px 0px rgba(61, 40, 23, 0.1);
+  }
+}
+
+/* Resetar order no desktop para manter ordem natural do grid */
+@media (min-width: 768px) {
+  .event-card-item {
+    order: unset !important;
+  }
+}
+
