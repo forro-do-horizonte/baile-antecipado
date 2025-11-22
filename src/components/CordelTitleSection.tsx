@@ -1,4 +1,3 @@
-import React from 'react'
 import CordelDivider from './CordelDivider'
 
 interface CordelTitleSectionProps {

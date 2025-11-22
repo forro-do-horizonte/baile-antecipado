@@ -8,7 +8,6 @@ const EventModal = () => {
   const { isOpen, eventId, closeModal } = useEventModal()
   const { events, updateEvent, addEvent } = useEvents()
   const { openModal: openConfirmModal } = useConfirmModal()
-  const fileInputRef = useRef<HTMLInputElement>(null)
   const modalRef = useRef<HTMLDivElement>(null)
   const isNewEvent = eventId === null
   
@@ -28,7 +27,6 @@ const EventModal = () => {
 
   const [insertedLots, setInsertedLots] = useState<Lot[]>([])
   const [editingLot, setEditingLot] = useState<Lot | null>(null)
-  const [hasTicketSales, setHasTicketSales] = useState(false)
 
   // Função para converter data brasileira para formato date input (YYYY-MM-DD)
   const convertToDateInput = (dateStr: string): string => {
@@ -84,7 +82,6 @@ const EventModal = () => {
         producer: ''
       })
       setInsertedLots([])
-      setHasTicketSales(false)
       return
     }
     
@@ -108,7 +105,6 @@ const EventModal = () => {
         startDate: convertToDateInput(lot.startDate),
         endDate: convertToDateInput(lot.endDate)
       })))
-      setHasTicketSales((event.ticketsSold || 0) > 0)
     }
   }, [eventId, events, isNewEvent])
 

@@ -12,7 +12,7 @@ const Login = () => {
   const [role, setRole] = useState<UserRole>('empresa')
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const { login, user } = useAuth()
+  const { login } = useAuth()
   const navigate = useNavigate()
 
   const handleSubmit = async (e: React.FormEvent) => {

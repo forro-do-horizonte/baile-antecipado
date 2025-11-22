@@ -1,5 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useState, useRef, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { useUserSettings } from '../contexts/UserSettingsContext'
 import { usePrimaryAction } from '../contexts/PrimaryActionContext'
@@ -79,52 +80,37 @@ const Header = () => {
     }
   }
 
-  // Fechar menu ao clicar fora e aplicar overlay
+  // Fechar menu ao clicar fora
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node
       if (userMenuRef.current && !userMenuRef.current.contains(target)) {
         setIsUserMenuOpen(false)
       }
-      if (loginModalRef.current && !loginModalRef.current.contains(target)) {
-        setIsLoginModalOpen(false)
-      }
     }
 
-    const handleOverlayClick = () => {
-      setIsUserMenuOpen(false)
-      setIsLoginModalOpen(false)
-    }
-
-    const isAnyModalOpen = isUserMenuOpen || isLoginModalOpen
-
-    if (isAnyModalOpen) {
-      // Adicionar overlay
-      const overlay = document.createElement('div')
-      overlay.id = 'menu-overlay'
-      overlay.className = 'fixed inset-0 z-40'
-      overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.8)'
-      overlay.style.filter = 'brightness(20%)'
-      overlay.style.pointerEvents = 'auto'
-      overlay.onclick = handleOverlayClick
-      document.body.appendChild(overlay)
-      
-      // Prevenir scroll
-      document.body.style.overflow = 'hidden'
-      
-      // Prevenir cliques em outros elementos
-      document.addEventListener('mousedown', handleClickOutside, true)
+    if (isUserMenuOpen) {
+      // Pequeno delay para evitar fechar imediatamente ao abrir
+      const timeoutId = setTimeout(() => {
+        document.addEventListener('mousedown', handleClickOutside, true)
+      }, 100)
       
       return () => {
+        clearTimeout(timeoutId)
         document.removeEventListener('mousedown', handleClickOutside, true)
-        const overlayElement = document.getElementById('menu-overlay')
-        if (overlayElement) {
-          overlayElement.remove()
-        }
+      }
+    }
+  }, [isUserMenuOpen])
+
+  // Prevenir scroll quando modal de login estiver aberto
+  useEffect(() => {
+    if (isLoginModalOpen) {
+      document.body.style.overflow = 'hidden'
+      return () => {
         document.body.style.overflow = ''
       }
     }
-  }, [isUserMenuOpen, isLoginModalOpen])
+  }, [isLoginModalOpen])
 
   // Limpar campos quando o modal for fechado
   useEffect(() => {
@@ -259,7 +245,10 @@ const Header = () => {
           ) : (
             <Button
               variant="quintary"
-              onClick={() => setIsLoginModalOpen(true)}
+              onClick={(e) => {
+                e.stopPropagation()
+                setIsLoginModalOpen(true)
+              }}
               className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm md:text-base rounded-lg w-auto"
             >
               Meus Antecipados
@@ -270,13 +259,30 @@ const Header = () => {
 
       </div>
 
-      {/* Modal de Login */}
-      {isLoginModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+      {/* Modal de Login - Renderizado via Portal fora do header */}
+      {isLoginModalOpen && createPortal(
+        <div 
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setIsLoginModalOpen(false)
+            }
+          }}
+        >
           <div 
             ref={loginModalRef}
-            className="bg-beige-light border-2 border-brown shadow-[4px_4px_0_0_#000] p-6 sm:p-8 w-full max-w-md mx-4 relative z-50"
+            className="bg-beige-light border-2 border-brown shadow-[4px_4px_0_0_#000] p-6 sm:p-8 w-full max-w-md relative rounded-lg"
+            onClick={(e) => e.stopPropagation()}
           >
+            {/* Botão de fechar */}
+            <button
+              onClick={() => setIsLoginModalOpen(false)}
+              className="absolute top-4 right-4 text-brown hover:text-primary text-2xl font-bold transition-colors"
+              aria-label="Fechar"
+            >
+              ×
+            </button>
+            
             <h1 className="text-2xl sm:text-3xl font-serif font-bold text-brown text-center mb-6">
               Login
             </h1>
@@ -343,7 +349,8 @@ const Header = () => {
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </header>
   )

@@ -9,7 +9,7 @@ import EventCard from '../components/EventCard'
 const DashboardUsuario = () => {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
-  const [contractedEvents, setContractedEvents] = useState([
+  const [contractedEvents] = useState([
     {
       id: 'a1b2c3d4-e5f6-4789-a012-b3c4d5e6f789',
       title: "Arrasta-pé na Capital",

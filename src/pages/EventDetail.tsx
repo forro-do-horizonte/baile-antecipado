@@ -270,7 +270,7 @@ const EventDetail = () => {
                   <div className="bg-white">
                     {/* Lista de Tipos de Ingresso */}
                     <div className="divide-y divide-brown/20">
-                      {event.ticketTypes.map((ticket, index) => {
+                      {event.ticketTypes.map((ticket) => {
                         const quantity = ticketQuantities[ticket.id] || 0
                         const installmentPrice = calculateInstallment(ticket.price)
                         
