@@ -2,6 +2,9 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useState, useRef, useEffect } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { useUserSettings } from '../contexts/UserSettingsContext'
+import { usePrimaryAction } from '../contexts/PrimaryActionContext'
+import { useEventModal } from '../contexts/EventModalContext'
+import { useConfirmModal } from '../contexts/ConfirmModalContext'
 import Button from './Button'
 
 const Header = () => {
@@ -14,8 +17,15 @@ const Header = () => {
   const { isAuthenticated, user, logout, login } = useAuth()
   const { settings } = useUserSettings()
   const navigate = useNavigate()
+  
+  // Hook sempre disponível devido ao provider
+  const primaryAction = usePrimaryAction()
+  const { isOpen: isEventModalOpen } = useEventModal()
+  const { isOpen: isConfirmModalOpen } = useConfirmModal()
   const userMenuRef = useRef<HTMLDivElement>(null)
   const loginModalRef = useRef<HTMLDivElement>(null)
+  
+  const isAnyModalOpen = isEventModalOpen || isConfirmModalOpen || isLoginModalOpen
 
   const handleLogout = () => {
     logout()
@@ -126,7 +136,7 @@ const Header = () => {
   }, [isLoginModalOpen])
 
   return (
-    <header className="fixed top-0 left-0 right-0 w-full bg-beige z-50">
+    <header className={`fixed top-0 left-0 right-0 w-full bg-beige z-50 transition-all duration-300 ${isAnyModalOpen ? 'opacity-60 brightness-75' : 'opacity-100 brightness-100'}`}>
       <div className="relative w-full pb-[2px]">
         {/* Linha com degradê/blur que se estende de fora a fora */}
         <div className="absolute bottom-0 left-0 right-0 h-[2px]">
@@ -135,12 +145,38 @@ const Header = () => {
         </div>
       </div>
       <div className="w-full px-3 py-3 sm:px-4 sm:py-4 relative z-10">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-        {/* Logo - lado esquerdo */}
-        <Link to="/" className="flex items-center gap-2">
-          <div className="w-6 h-6 sm:w-8 sm:h-8 bg-brown rounded-sm"></div>
-          <span className="text-brown text-base sm:text-lg md:text-xl cordel-text hover:text-primary transition-colors duration-300">Baile Antecipado</span>
-        </Link>
+        <div className={`max-w-7xl mx-auto flex items-center ${isAuthenticated ? 'justify-between' : 'justify-between'}`}>
+        {/* Lado esquerdo - Logo (não autenticado) ou Botão Cadastrar (autenticado) */}
+        {!isAuthenticated ? (
+          <Link to="/" className="flex items-center gap-2">
+            <div className="w-6 h-6 sm:w-8 sm:h-8 bg-brown rounded-sm"></div>
+            <span className="text-brown text-base sm:text-lg md:text-xl cordel-text hover:text-primary transition-colors duration-300">Baile Antecipado</span>
+          </Link>
+        ) : (
+          <>
+            {/* Botão de ação primária - apenas para empresa */}
+            {user?.role === 'empresa' && primaryAction.label && (
+              <div className="flex items-center gap-2">
+                <Button 
+                  variant="primary" 
+                  onClick={primaryAction.onClick}
+                  className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm"
+                >
+                  {primaryAction.label}
+                </Button>
+                {primaryAction.secondaryAction && (
+                  <Button 
+                    variant={primaryAction.secondaryAction.variant}
+                    onClick={primaryAction.secondaryAction.onClick}
+                    className="px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm"
+                  >
+                    {primaryAction.secondaryAction.label}
+                  </Button>
+                )}
+              </div>
+            )}
+          </>
+        )}
 
         {/* Navigation e Botões - lado direito */}
         <div className="flex items-center gap-2 sm:gap-4">

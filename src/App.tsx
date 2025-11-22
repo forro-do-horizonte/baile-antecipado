@@ -8,11 +8,21 @@ import EditEvent from './pages/EditEvent'
 import EventDashboard from './pages/EventDashboard'
 import Settings from './pages/Settings'
 import ProtectedRoute from './components/ProtectedRoute'
+import { PrimaryActionProvider } from './contexts/PrimaryActionContext'
+import { EventModalProvider } from './contexts/EventModalContext'
+import { ConfirmModalProvider, useConfirmModal } from './contexts/ConfirmModalContext'
+import EventModal from './components/EventModal'
+import ConfirmModal from './components/ConfirmModal'
 
 function App() {
   return (
     <Router>
-      <Routes>
+      <EventModalProvider>
+        <ConfirmModalProvider>
+          <PrimaryActionProvider>
+            <EventModal />
+            <ConfirmModalWrapper />
+            <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/evento/:eventId" element={<EventDetail />} />
         <Route path="/login" element={<Login />} />
@@ -41,6 +51,14 @@ function App() {
           }
         />
         <Route
+          path="/dashboard/empresa/evento/novo"
+          element={
+            <ProtectedRoute requiredRole="empresa">
+              <EditEvent />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/dashboard/empresa/configuracoes"
           element={
             <ProtectedRoute requiredRole="empresa">
@@ -56,8 +74,31 @@ function App() {
             </ProtectedRoute>
           }
         />
-      </Routes>
+            </Routes>
+          </PrimaryActionProvider>
+        </ConfirmModalProvider>
+      </EventModalProvider>
     </Router>
+  )
+}
+
+const ConfirmModalWrapper = () => {
+  const { isOpen, config, closeModal } = useConfirmModal()
+  
+  if (!config) return null
+  
+  return (
+    <ConfirmModal
+      isOpen={isOpen}
+      onClose={closeModal}
+      onConfirm={config.onConfirm}
+      title={config.title}
+      message={config.message}
+      confirmLabel={config.confirmLabel}
+      cancelLabel={config.cancelLabel}
+      confirmVariant={config.confirmVariant}
+      cancelVariant={config.cancelVariant}
+    />
   )
 }
 

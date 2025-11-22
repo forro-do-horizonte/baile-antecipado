@@ -1,13 +1,22 @@
+import { useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useEvents } from '../contexts/EventsContext'
+import { useEventModal } from '../contexts/EventModalContext'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
 import Button from '../components/Button'
+import PageHeader from '../components/PageHeader'
+import StatCard from '../components/StatCard'
 
 const EventDashboard = () => {
   const { eventId } = useParams<{ eventId: string }>()
   const navigate = useNavigate()
   const { events } = useEvents()
+  const { openModal } = useEventModal()
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' })
+  }, [eventId])
   
   const event = events.find(e => e.id === eventId)
 
@@ -46,51 +55,35 @@ const EventDashboard = () => {
       <main className="flex-grow px-4 py-8 pt-24">
         <div className="max-w-7xl mx-auto">
           {/* Cabeçalho */}
-          <div className="mb-6">
-            <button
-              onClick={() => navigate('/dashboard/empresa')}
-              className="text-brown hover:text-primary mb-4 text-sm font-medium"
-            >
-              ← Voltar para Dashboard
-            </button>
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
-              <div>
-                <h1 className="text-2xl sm:text-3xl font-serif font-bold text-brown mb-2">
-                  {event.title}
-                </h1>
-                <p className="text-brown/70 text-sm sm:text-base">
-                  {event.date} • {event.location}
-                </p>
-              </div>
-              <Button
-                variant="primary"
-                onClick={() => navigate(`/dashboard/empresa/evento/${event.id}/editar`)}
-                className="px-4 py-2.5 text-sm"
-              >
-                Editar Evento
-              </Button>
-            </div>
-          </div>
+          <PageHeader
+            title={event.title}
+            subtitle={
+              <p className="text-brown/70 text-sm sm:text-base">
+                {event.date} • {event.location}
+              </p>
+            }
+          />
 
           {/* Estatísticas Gerais */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-            <div className="bg-beige-light border-2 border-brown shadow-[4px_4px_0_0_#000] p-4">
-              <h3 className="text-brown font-semibold text-sm mb-1">Total Arrecadado</h3>
-              <p className="text-2xl font-bold text-brown">
-                R$ {totalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </p>
-              <p className="text-xs text-brown/60 mt-1">Líquido (sem taxa de serviço)</p>
-            </div>
-            <div className="bg-beige-light border-2 border-brown shadow-[4px_4px_0_0_#000] p-4">
-              <h3 className="text-brown font-semibold text-sm mb-1">Ingressos Vendidos</h3>
-              <p className="text-2xl font-bold text-brown">{totalTicketsSold}</p>
-              <p className="text-xs text-brown/60 mt-1">Total de ingressos</p>
-            </div>
-            <div className="bg-beige-light border-2 border-brown shadow-[4px_4px_0_0_#000] p-4">
-              <h3 className="text-brown font-semibold text-sm mb-1">Lotes Ativos</h3>
-              <p className="text-2xl font-bold text-brown">{event.lots?.length || 0}</p>
-              <p className="text-xs text-brown/60 mt-1">Lotes cadastrados</p>
-            </div>
+            <StatCard
+              type="money"
+              title="Total Arrecadado"
+              value={`R$ ${totalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+              subtitle="Líquido (sem taxa de serviço)"
+            />
+            <StatCard
+              type="tickets"
+              title="Ingressos Vendidos"
+              value={totalTicketsSold}
+              subtitle="Total de ingressos"
+            />
+            <StatCard
+              type="lots"
+              title="Lotes Ativos"
+              value={event.lots?.length || 0}
+              subtitle="Lotes cadastrados"
+            />
           </div>
 
           {/* Estatísticas por Lote */}

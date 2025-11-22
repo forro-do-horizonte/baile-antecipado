@@ -66,6 +66,35 @@ body {
     font-weight: normal;
     text-shadow: 0.5px 0.5px 0px rgba(61, 40, 23, 0.1);
   }
+
+  /* Animação de scroll dos ícones (direita para esquerda) */
+  @keyframes scroll-left {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  .animate-scroll-left {
+    animation: scroll-left 20s linear infinite;
+    will-change: transform;
+  }
+
+  /* Animação de pulso no texto (aumenta 5% e diminui 5%) */
+  @keyframes pulse-scale {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+  }
+
+  .animate-pulse-scale {
+    animation: pulse-scale 5s ease-in-out infinite;
+  }
 }
 
 /* Resetar order no desktop para manter ordem natural do grid */

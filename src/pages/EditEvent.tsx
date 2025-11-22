@@ -4,12 +4,14 @@ import { useEvents, Lot, generateUUID } from '../contexts/EventsContext'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
 import Button from '../components/Button'
+import PageHeader from '../components/PageHeader'
 
 const EditEvent = () => {
   const { eventId } = useParams<{ eventId: string }>()
   const navigate = useNavigate()
-  const { events, updateEvent } = useEvents()
+  const { events, updateEvent, addEvent } = useEvents()
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const isNewEvent = eventId === 'novo'
   
   const [formData, setFormData] = useState({
     title: '',
@@ -19,7 +21,8 @@ const EditEvent = () => {
     imageUrl: '',
     description: '',
     saleEndDate: '',
-    lots: [] as Lot[]
+    lots: [] as Lot[],
+    type: 'Forró'
   })
 
   const [insertedLots, setInsertedLots] = useState<Lot[]>([])
@@ -68,6 +71,8 @@ const EditEvent = () => {
 
   // Carregar dados do evento
   useEffect(() => {
+    if (isNewEvent) return // Não carregar dados se for novo evento
+    
     const event = events.find(e => e.id === eventId)
     if (event) {
       setFormData({
@@ -78,7 +83,8 @@ const EditEvent = () => {
         imageUrl: event.imageUrl,
         description: event.description || '',
         saleEndDate: convertToDateInput(event.saleEndDate || ''),
-        lots: event.lots || []
+        lots: event.lots || [],
+        type: event.type || 'Forró'
       })
       setInsertedLots((event.lots || []).map(lot => ({
         ...lot,
@@ -88,11 +94,27 @@ const EditEvent = () => {
       // Verificar se há vendas de ingressos
       setHasTicketSales((event.ticketsSold || 0) > 0)
     }
-  }, [eventId, events])
+  }, [eventId, events, isNewEvent])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (eventId) {
+    if (isNewEvent) {
+      // Criar novo evento
+      const newEvent = {
+        ...formData,
+        id: generateUUID(),
+        date: convertToBrazilianDate(formData.date),
+        saleEndDate: convertToBrazilianDate(formData.saleEndDate),
+        lots: insertedLots.map(lot => ({
+          ...lot,
+          startDate: convertToBrazilianDate(lot.startDate),
+          endDate: convertToBrazilianDate(lot.endDate)
+        })),
+        ticketsSold: 0
+      }
+      addEvent(newEvent)
+      navigate('/dashboard/empresa')
+    } else if (eventId) {
       // Converter datas de volta para formato brasileiro antes de salvar
       updateEvent(eventId, {
         ...formData,
@@ -104,8 +126,8 @@ const EditEvent = () => {
           endDate: convertToBrazilianDate(lot.endDate)
         }))
       })
+      navigate('/dashboard/empresa')
     }
-    navigate('/dashboard/empresa')
   }
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -213,17 +235,7 @@ const EditEvent = () => {
       <main className="flex-grow px-4 py-8 pt-24">
         <div className="max-w-4xl mx-auto">
           {/* Cabeçalho */}
-          <div className="mb-6">
-            <button
-              onClick={() => navigate('/dashboard/empresa')}
-              className="text-brown hover:text-primary mb-4 text-sm font-medium"
-            >
-              ← Voltar para Dashboard
-            </button>
-            <h1 className="text-2xl sm:text-3xl font-serif font-bold text-brown">
-              Editar Evento
-            </h1>
-          </div>
+          <PageHeader title={isNewEvent ? "Novo Evento" : "Editar Evento"} />
 
           {/* Formulário */}
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -359,6 +371,28 @@ const EditEvent = () => {
                   <option value="ativo">Ativo</option>
                   <option value="inativo">Inativo</option>
                   <option value="cancelado">Cancelado</option>
+                </select>
+              </div>
+
+              {/* Tipo de Evento */}
+              <div className="mb-4">
+                <label htmlFor="type" className="block text-brown font-semibold mb-2 text-sm">
+                  Tipo de Evento *
+                </label>
+                <select
+                  id="type"
+                  name="type"
+                  value={formData.type}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-4 py-2.5 border-2 border-brown bg-white text-brown rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary font-serif text-sm"
+                >
+                  <option value="Forró">Forró</option>
+                  <option value="Sertanejo">Sertanejo</option>
+                  <option value="Axé">Axé</option>
+                  <option value="Pagode">Pagode</option>
+                  <option value="MPB">MPB</option>
+                  <option value="Outro">Outro</option>
                 </select>
               </div>
             </div>

@@ -1,43 +1,16 @@
 import { useState, useMemo, useEffect } from 'react'
 import Header from '../components/Header'
-import EventCard from '../components/EventCard'
+import EventCardHome from '../components/EventCardHome'
 import Footer from '../components/Footer'
 import LocationFilter from '../components/LocationFilter'
+import CordelTitleSection from '../components/CordelTitleSection'
+import { useEvents } from '../contexts/EventsContext'
 
 const Home = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCity, setSelectedCity] = useState<string | null>(null)
   const [locationDetected, setLocationDetected] = useState(false)
-
-  const events = [
-    {
-      id: 'a1b2c3d4-e5f6-4789-a012-b3c4d5e6f789',
-      title: "Arrasta-pé na Capital",
-      description: "Uma noite de pura animação com o melhor do forró tradicional.",
-      date: "20 de Julho, 2024",
-      location: "Clube do Sertão",
-      city: "Uberlândia",
-      imageUrl: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=800&q=80"
-    },
-    {
-      id: 'f2e3d4c5-b6a7-4890-c123-d4e5f6a7b890',
-      title: "Forró Luar do Sertão",
-      description: "Dance a noite toda sob as estrelas ao som da sanfona, zabumba e triângulo.",
-      date: "15 de Agosto, 2024",
-      location: "Arena ao Ar Livre",
-      city: "Uberlândia",
-      imageUrl: "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=800&q=80"
-    },
-    {
-      id: 'c3d4e5f6-a7b8-4901-d234-e5f6a7b8c901',
-      title: "Festival Raízes do Forró",
-      description: "Um final de semana inteiro celebrando a música e a cultura do forró.",
-      date: "5-7 de Setembro, 2024",
-      location: "Grande Salão de Festas",
-      city: "Uberlândia",
-      imageUrl: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&q=80"
-    }
-  ]
+  const { events } = useEvents()
 
   // Lista de capitais do Brasil
   const capitalCities = useMemo(() => [
@@ -242,28 +215,41 @@ const Home = () => {
     )
   }, [locationDetected, selectedCity, allCities])
 
-  // Filtrar eventos baseado na pesquisa e cidade
-  const filteredEvents = events.filter(event => {
-    const matchesSearch = 
-      event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      event.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      event.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (event.city && event.city.toLowerCase().includes(searchQuery.toLowerCase()))
-    
-    const matchesCity = !selectedCity || event.city === selectedCity
-    
-    return matchesSearch && matchesCity
-  })
+  // Filtrar apenas eventos publicados
+  const publishedEvents = useMemo(() => {
+    return events.filter(event => event.published === true)
+  }, [events])
 
-  // Determinar qual é o evento principal (central)
-  const centerIndex = filteredEvents.length >= 3 ? Math.floor(filteredEvents.length / 2) : -1
+  // Filtrar eventos baseado na pesquisa e cidade
+  const filteredEvents = useMemo(() => {
+    return publishedEvents.filter(event => {
+      const matchesSearch = 
+        event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        event.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (event.description && event.description.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (event.city && event.city.toLowerCase().includes(searchQuery.toLowerCase()))
+      
+      const matchesCity = !selectedCity || event.city === selectedCity
+      
+      return matchesSearch && matchesCity
+    })
+  }, [publishedEvents, searchQuery, selectedCity])
+
+  // Separar eventos em destaque e todos os eventos
+  const featuredEvents = useMemo(() => {
+    return filteredEvents.filter(event => event.featured === true).slice(0, 4)
+  }, [filteredEvents])
+
+  const allEvents = useMemo(() => {
+    return filteredEvents.filter(event => !event.featured || featuredEvents.length < 4 || !featuredEvents.find(fe => fe.id === event.id))
+  }, [filteredEvents, featuredEvents])
 
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
       
-      <main className="flex-grow pt-20">
-        <section className="w-full px-3 py-6 sm:px-4 sm:py-8 md:px-8 md:py-12">
+      <main className="flex-grow pt-20 overflow-x-hidden">
+        <section className="w-full px-3 py-[1.05rem] sm:px-4 sm:py-[1.4rem] md:px-8 md:py-[2.1rem]">
           <div className="max-w-7xl mx-auto">
             {/* Campo de Pesquisa e Filtro de Localização */}
             <div className="mb-3 sm:mb-4">
@@ -299,36 +285,57 @@ const Home = () => {
               </div>
             </div>
 
-            {/* Grid de Banners Estáticos */}
-            {filteredEvents.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-5">
-                {filteredEvents.map((event, index) => {
-                  const isCenter = index === centerIndex
-                  
-                  return (
-                    <div
+            {/* Bloco de Eventos em Destaque */}
+            {featuredEvents.length > 0 && (
+              <div className="mb-12">
+                <CordelTitleSection title="Bailes só o luxo" />
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                  {featuredEvents.map((event) => (
+                    <EventCardHome
                       key={event.id}
-                      className={`${isCenter ? 'sm:col-span-2 md:col-span-2' : 'sm:col-span-1 md:col-span-1'} event-card-item`}
-                      style={{
-                        // No mobile: evento central primeiro (order: 1), outros seguem
-                        // No desktop: ordem natural (será resetada pelo CSS)
-                        order: isCenter ? 1 : index + 2
-                      }}
-                    >
-                      <EventCard
-                        title={event.title}
-                        description={event.description}
-                        date={event.date}
-                        location={event.location}
-                        imageUrl={event.imageUrl}
-                        isFeatured={isCenter}
-                        eventId={event.id}
-                      />
-                    </div>
-                  )
-                })}
+                      title={event.title}
+                      date={event.date}
+                      location={event.location}
+                      city={event.city}
+                      imageUrl={event.imageUrl}
+                      openingTime={event.openingTime}
+                      eventId={event.id}
+                      isFeatured={true}
+                      producer={event.producer}
+                      description={event.description}
+                    />
+                  ))}
+                </div>
               </div>
-            ) : (
+            )}
+
+            {/* Bloco de Todos os Eventos */}
+            {allEvents.length > 0 && (
+              <div>
+                <h2 className="text-2xl font-serif font-bold text-brown mb-6 text-center">
+                  Todos os Eventos
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                  {allEvents.map((event) => (
+                    <EventCardHome
+                      key={event.id}
+                      title={event.title}
+                      date={event.date}
+                      location={event.location}
+                      city={event.city}
+                      imageUrl={event.imageUrl}
+                      openingTime={event.openingTime}
+                      eventId={event.id}
+                      producer={event.producer}
+                      description={event.description}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Mensagem quando não há eventos */}
+            {filteredEvents.length === 0 && (
               <div className="text-center py-12">
                 <p className="text-brown text-base sm:text-lg font-serif">
                   {selectedCity 

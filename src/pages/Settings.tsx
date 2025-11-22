@@ -1,12 +1,11 @@
 import { useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useUserSettings } from '../contexts/UserSettingsContext'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
 import Button from '../components/Button'
+import PageHeader from '../components/PageHeader'
 
 const Settings = () => {
-  const navigate = useNavigate()
   const { settings, updateSettings } = useUserSettings()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -28,17 +27,7 @@ const Settings = () => {
       <main className="flex-grow px-4 py-8 pt-24">
         <div className="max-w-4xl mx-auto">
           {/* Cabeçalho */}
-          <div className="mb-6">
-            <button
-              onClick={() => navigate('/dashboard/empresa')}
-              className="text-brown hover:text-primary mb-4 text-sm font-medium"
-            >
-              ← Voltar para Dashboard
-            </button>
-            <h1 className="text-2xl sm:text-3xl font-serif font-bold text-brown">
-              Configurações
-            </h1>
-          </div>
+          <PageHeader title="Configurações" />
 
           {/* Formulário */}
           <div className="space-y-6">
