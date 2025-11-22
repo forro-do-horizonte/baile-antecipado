@@ -276,11 +276,11 @@ const Home = () => {
 
   // Separar eventos em destaque e todos os eventos
   const featuredEvents = useMemo(() => {
-    return filteredEvents.filter(event => event.featured === true).slice(0, 4)
+    return filteredEvents.filter(event => event.sectionType === 'SO_O_LUXO').slice(0, 4)
   }, [filteredEvents])
 
   const allEvents = useMemo(() => {
-    return filteredEvents.filter(event => !event.featured || featuredEvents.length < 4 || !featuredEvents.find(fe => fe.id === event.id))
+    return filteredEvents.filter(event => event.sectionType === 'TODOS_EVENTOS' || (event.sectionType === 'SO_O_LUXO' && !featuredEvents.find(fe => fe.id === event.id)))
   }, [filteredEvents, featuredEvents])
 
   return (
