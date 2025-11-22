@@ -287,9 +287,9 @@ const Home = () => {
     <div className="min-h-screen flex flex-col">
       <Header />
       
-      <main className="flex-grow pt-20 overflow-x-hidden">
+      <main className="flex-grow pt-20">
         <section className="w-full px-3 pb-[1.05rem] sm:px-4 sm:pb-[1.4rem] md:px-8 md:pb-[2.1rem]">
-          <div className="max-w-7xl mx-auto">
+          <div className="max-w-7xl mx-auto" style={{ overflowX: 'visible' }}>
             {/* Campo de Pesquisa e Filtro de Localização */}
             <div className="mb-3 sm:mb-4">
               <div className="flex flex-row gap-3 items-center justify-center max-w-2xl mx-auto">
