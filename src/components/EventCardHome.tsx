@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import EventCalendar from './EventCalendar'
 
@@ -25,9 +26,14 @@ const EventCardHome = ({
   producer
 }: EventCardHomeProps) => {
   const navigate = useNavigate()
+  const [imageError, setImageError] = useState(false)
 
   const handleClick = () => {
     navigate(`/evento/${eventId}`)
+  }
+
+  const handleImageError = () => {
+    setImageError(true)
   }
 
   return (
@@ -37,11 +43,18 @@ const EventCardHome = ({
     >
       {/* Image */}
       <div className="w-full h-48 sm:h-56 overflow-hidden bg-gray-800">
-        <img
-          src={imageUrl}
-          alt={title}
-          className="w-full h-full object-cover"
-        />
+        {!imageError ? (
+          <img
+            src={imageUrl}
+            alt={title}
+            className="w-full h-full object-cover"
+            onError={handleImageError}
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center bg-gray-300">
+            <span className="text-gray-500 text-sm">Imagem não disponível</span>
+          </div>
+        )}
       </div>
 
       {/* Content */}
