@@ -41,10 +41,10 @@ const LocationFilter = ({ selectedCity, onCitySelect, capitalCities, allCities }
       <Button
         variant="quaternary"
         onClick={() => setIsModalOpen(true)}
-        className="w-auto flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-2 sm:py-2.5 text-sm sm:text-base whitespace-nowrap"
+        className="w-auto flex items-center gap-1.5 sm:gap-2 px-2 sm:px-2.5 md:px-3 py-2 sm:py-2.5 text-sm sm:text-base whitespace-nowrap"
       >
         <svg 
-          className="w-4 h-4 text-brown flex-shrink-0" 
+          className="w-4 h-4 sm:w-5 sm:h-5 text-brown flex-shrink-0" 
           fill="none" 
           stroke="currentColor" 
           viewBox="0 0 24 24"
@@ -63,9 +63,11 @@ const LocationFilter = ({ selectedCity, onCitySelect, capitalCities, allCities }
             stroke="none"
           />
         </svg>
-        <span className="text-brown text-sm sm:text-base">{selectedCity || 'Qualquer lugar'}</span>
+        {/* Texto visível apenas em telas maiores que mobile */}
+        <span className="hidden sm:inline text-brown text-sm sm:text-base">{selectedCity || 'Qualquer lugar'}</span>
+        {/* Seta visível apenas em telas maiores que mobile */}
         <svg 
-          className="w-3 h-3 text-brown flex-shrink-0" 
+          className="hidden sm:block w-3 h-3 text-brown flex-shrink-0" 
           fill="none" 
           stroke="currentColor" 
           viewBox="0 0 24 24"
