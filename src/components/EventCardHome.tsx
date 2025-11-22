@@ -41,7 +41,6 @@ const EventCardHome = ({
           src={imageUrl}
           alt={title}
           className="w-full h-full object-cover"
-          style={{ filter: 'grayscale(100%)' }}
         />
       </div>
 

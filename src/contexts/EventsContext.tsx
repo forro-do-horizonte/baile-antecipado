@@ -53,15 +53,15 @@ const generateUUID = () => {
 
 export const EventsProvider = ({ children }: EventsProviderProps) => {
   const [events, setEvents] = useState<Event[]>([
-    // EVENTOS ATIVOS
+    // EVENTOS ATIVOS - BAILES SÓ O LUXO (Featured)
     {
       id: 'a1b2c3d4-e5f6-4789-a012-b3c4d5e6f789',
-      title: 'Arrasta-pé na Capital',
-      date: '20 de Janeiro, 2025',
-      location: 'Clube do Sertão',
+      title: 'Aniversário Forró do Horizonte',
+      date: '17 de Maio, 2024',
+      location: 'Faiska',
       status: 'ativo',
-      imageUrl: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=800&q=80',
-      description: 'Uma noite de pura animação com o melhor do forró tradicional.',
+      imageUrl: '/pictures/temp/aniversario-forro-do-horizonte.png',
+      description: 'Celebre o aniversário do Forró do Horizonte com uma noite especial de muita música e animação.',
       saleEndDate: '19 de Janeiro, 2025',
       lots: [
         {
@@ -98,17 +98,17 @@ export const EventsProvider = ({ children }: EventsProviderProps) => {
       featured: true,
       openingTime: '20:00',
       city: 'Uberlândia',
-      producer: 'Produtor Genérico'
+      producer: 'Forró do Horizonte'
     },
     {
       id: 'b2c3d4e5-f6a7-4890-b123-c4d5e6f7a890',
-      title: 'Forró Pé de Serra',
+      title: 'Forró com Pimenta',
       date: '15 de Fevereiro, 2025',
-      location: 'Centro de Convenções',
+      location: 'Pimenta bar e eventos',
       status: 'ativo',
-      imageUrl: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&q=80',
-      description: 'O melhor do forró pé de serra com grandes nomes da música nordestina.',
-      saleEndDate: '14 de Fevereiro, 2025',
+      imageUrl: '/pictures/temp/forro-com-pimenta.jpeg',
+      description: 'Uma noite picante com o melhor do forró, trazendo muito sabor e animação para você dançar até o amanhecer.',
+      saleEndDate: '14 de Novembro, 2025',
       lots: [
         {
           id: 'lote-1-feb',
@@ -134,17 +134,17 @@ export const EventsProvider = ({ children }: EventsProviderProps) => {
       published: true,
       featured: true,
       openingTime: '21:00',
-      city: 'São Paulo',
-      producer: 'Produtor Genérico'
+      city: 'Uberlândia',
+      producer: 'Forró do Horizonte'
     },
     {
       id: 'c3d4e5f6-a7b8-4901-c234-d5e6f7a8b901',
-      title: 'São João Antecipado',
-      date: '20 de Junho, 2025',
-      location: 'Parque de Exposições',
+      title: 'Dominguim no D\'bas com Forró do Horizonte',
+      date: '26 de Outubro, 2025',
+      location: 'Dboche Pub SHow',
       status: 'ativo',
-      imageUrl: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=800&q=80',
-      description: 'Celebre o São João com muita música, quadrilha e comidas típicas.',
+      imageUrl: '/pictures/temp/forro-no-dboche.jpeg',
+      description: 'Uma festa descontraída e animada, onde o forró encontra a diversão e a alegria em cada momento.',
       saleEndDate: '19 de Junho, 2025',
       lots: [
         {
@@ -171,17 +171,17 @@ export const EventsProvider = ({ children }: EventsProviderProps) => {
       published: true,
       featured: true,
       openingTime: '20:00',
-      city: 'Rio de Janeiro',
-      producer: 'Produtor Genérico'
+      city: 'Uberlândia',
+      producer: 'Dboche Pub'
     },
     {
       id: 'd4e5f6a7-b8c9-4012-d345-e6f7a8b9c012',
-      title: 'Festival de Forró',
-      date: '10 de Março, 2025',
-      location: 'Arena Multiuso',
+      title: 'Forró no Vinil',
+      date: '15 de Outubro, 2025',
+      location: 'Vinil Cultura bar',
       status: 'ativo',
-      imageUrl: 'https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=800&q=80',
-      description: 'O maior festival de forró da região com 3 dias de muita animação.',
+      imageUrl: '/pictures/temp/forro-no-vinil.jpeg',
+      description: 'Reviva os clássicos do forró em uma experiência única com música tocada em vinil, trazendo a nostalgia e o calor do forró tradicional.',
       saleEndDate: '09 de Março, 2025',
       lots: [
         {
@@ -199,8 +199,8 @@ export const EventsProvider = ({ children }: EventsProviderProps) => {
       published: true,
       featured: true,
       openingTime: '22:00',
-      city: 'Brasília',
-      producer: 'Produtor Genérico'
+      city: 'Uberlândia',
+      producer: 'Philipim'
     },
     {
       id: 'e5f6a7b8-c9d0-4123-e456-f7a8b9c0d123',
