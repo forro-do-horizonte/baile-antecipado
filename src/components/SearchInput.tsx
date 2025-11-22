@@ -44,7 +44,7 @@ const SearchInput = ({
         const timeout = setTimeout(() => {
           setDisplayedPlaceholder(currentText.substring(0, charIndex + 1))
           setCharIndex(charIndex + 1)
-        }, 50) // Velocidade de digitação (50ms por letra)
+        }, 80) // Velocidade de digitação (80ms por letra)
         
         return () => clearTimeout(timeout)
       } else {
@@ -61,7 +61,7 @@ const SearchInput = ({
         const timeout = setTimeout(() => {
           setDisplayedPlaceholder(currentText.substring(0, charIndex - 1))
           setCharIndex(charIndex - 1)
-        }, 30) // Velocidade de apagar (30ms por letra, mais rápido)
+        }, 50) // Velocidade de apagar (50ms por letra)
         
         return () => clearTimeout(timeout)
       } else {

@@ -21,12 +21,12 @@ const CordelTitleSection = ({ title, className = '' }: CordelTitleSectionProps) 
         className="absolute top-1/2 -translate-y-1/2 z-0" 
         style={{ 
           height: '1rem',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
+          left: 0,
+          right: 0,
           width: '100vw',
           marginLeft: 'calc(-50vw + 50%)',
           position: 'absolute',
-          overflow: 'visible',
+          overflow: 'hidden',
           pointerEvents: 'none'
         }}
       >

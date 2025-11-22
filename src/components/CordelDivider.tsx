@@ -123,7 +123,8 @@ const CordelDivider = ({ height = '1rem' }: CordelDividerProps) => {
       const iconWidth = 24 // 1.5rem em pixels
       const gap = 4 // 0.25rem em pixels
       const totalWidth = iconWidth + gap
-      const icons = Math.ceil(viewportWidth / totalWidth) + 10 // +10 para garantir que cubra toda a tela
+      // Calcular ícones suficientes para cobrir 2x a viewport (para animação contínua)
+      const icons = Math.ceil((viewportWidth * 2) / totalWidth) + 20 // +20 para garantir movimento contínuo
       setNumberOfIcons(icons)
     }
 
@@ -145,15 +146,18 @@ const CordelDivider = ({ height = '1rem' }: CordelDividerProps) => {
         width: '100vw',
         height: iconHeight,
         overflow: 'hidden',
-        marginLeft: 'calc(-50vw + 50%)',
-        pointerEvents: 'none'
+        pointerEvents: 'none',
+        zIndex: 0,
+        marginLeft: 'calc(-50vw + 50%)'
       }}
     >
       <div 
         className="flex items-center justify-start gap-1 animate-scroll-left"
         style={{ 
           height: iconHeight,
-          width: '200vw'
+          width: '200vw',
+          position: 'absolute',
+          left: '0vw'
         }}
       >
       {/* Duplicar ícones para animação contínua */}
