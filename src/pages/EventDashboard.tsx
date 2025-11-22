@@ -1,18 +1,14 @@
 import { useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { useEvents } from '../contexts/EventsContext'
-import { useEventModal } from '../contexts/EventModalContext'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
-import Button from '../components/Button'
 import PageHeader from '../components/PageHeader'
 import StatCard from '../components/StatCard'
 
 const EventDashboard = () => {
   const { eventId } = useParams<{ eventId: string }>()
-  const navigate = useNavigate()
   const { events } = useEvents()
-  const { openModal } = useEventModal()
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' })

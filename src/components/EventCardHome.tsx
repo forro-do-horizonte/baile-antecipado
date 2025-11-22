@@ -22,9 +22,7 @@ const EventCardHome = ({
   imageUrl, 
   openingTime,
   eventId,
-  isFeatured = false,
-  producer,
-  description
+  producer
 }: EventCardHomeProps) => {
   const navigate = useNavigate()
 

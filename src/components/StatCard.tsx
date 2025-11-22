@@ -1,4 +1,3 @@
-import { ReactNode } from 'react'
 
 type StatCardType = 'money' | 'tickets' | 'lots' | 'default'
 
