@@ -35,7 +35,7 @@ const EventDetail = () => {
     location: eventData.location,
     city: eventData.city || '',
     imageUrl: eventData.imageUrl,
-    ticketTypes: (eventData.lots || []).map((lot, index) => ({
+    ticketTypes: (eventData.lots || []).map((lot) => ({
       id: lot.id,
       name: lot.name,
       price: lot.price,
