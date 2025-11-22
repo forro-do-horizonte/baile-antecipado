@@ -141,15 +141,12 @@ const CordelDivider = ({ height = '1rem' }: CordelDividerProps) => {
     <div 
       style={{ 
         position: 'absolute',
-        left: '50%',
-        transform: 'translateX(-50%)',
+        left: 0,
         width: '100vw',
         height: iconHeight,
         overflow: 'hidden',
-        marginLeft: 0,
-        marginRight: 0,
-        paddingLeft: 0,
-        paddingRight: 0
+        marginLeft: 'calc(-50vw + 50%)',
+        pointerEvents: 'none'
       }}
     >
       <div 

@@ -7,7 +7,7 @@ interface CordelTitleSectionProps {
 
 const CordelTitleSection = ({ title, className = '' }: CordelTitleSectionProps) => {
   return (
-    <div className={`relative mb-6 mt-6 flex items-center justify-center w-full overflow-visible ${className}`} style={{ position: 'relative' }}>
+    <div className={`relative mb-6 mt-6 flex items-center justify-center w-full ${className}`} style={{ position: 'relative', overflow: 'visible' }}>
       <h2 
         className="text-2xl font-bold text-brown text-center relative inline-block z-10 animate-pulse-scale" 
         style={{ fontFamily: 'SpecialElite, serif' }}
@@ -25,7 +25,6 @@ const CordelTitleSection = ({ title, className = '' }: CordelTitleSectionProps) 
           transform: 'translate(-50%, -50%)',
           width: '100vw',
           marginLeft: 'calc(-50vw + 50%)',
-          marginRight: 'calc(-50vw + 50%)',
           position: 'absolute',
           overflow: 'visible',
           pointerEvents: 'none'

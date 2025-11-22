@@ -41,7 +41,6 @@ const EventCardHome = ({
           src={imageUrl}
           alt={title}
           className="w-full h-full object-cover"
-          style={{ filter: 'grayscale(100%)' }}
         />
       </div>
 
@@ -57,7 +56,7 @@ const EventCardHome = ({
               </p>
             )}
             <p className="text-brown/70 text-xs mt-1">
-              {city && `${city}/SP`}
+              {city && city}
               {city && location && ' • '}
               {location}
             </p>

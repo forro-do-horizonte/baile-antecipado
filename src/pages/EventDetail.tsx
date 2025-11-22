@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
 import Button from '../components/Button'
+import { useEvents } from '../contexts/EventsContext'
 
 interface TicketType {
   id: string
@@ -15,109 +16,45 @@ interface TicketType {
 
 const EventDetail = () => {
   const { eventId } = useParams<{ eventId: string }>()
+  const { events } = useEvents()
   const [ticketQuantities, setTicketQuantities] = useState<{ [key: string]: number }>({})
   const [couponCode, setCouponCode] = useState('')
   const [showCouponInput, setShowCouponInput] = useState(false)
   const [showTaxModal, setShowTaxModal] = useState(false)
 
-  // Dados mockados dos eventos (em produção viria de uma API)
-  const events = [
-    {
-      id: 'a1b2c3d4-e5f6-4789-a012-b3c4d5e6f789',
-      title: "Arrasta-pé na Capital",
-      description: "Vista sua melhor roupa, prepare a sanfona e venha se divertir na nossa noite especial de forró pé de serra. O Trio Nordestino vai tocar os clássicos que fazem todo mundo dançar a noite inteira. Uma experiência autêntica e inesquecível para os amantes da boa música e da cultura nordestina.",
-      date: "Sábado, 20 de Julho de 2024",
-      time: "21:00",
-      location: "Clube do Sertão, Rua das Palmeiras, 123, Centro, Uberlândia",
-      city: "Uberlândia",
-      imageUrl: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=800&q=80",
-      ticketTypes: [
-        {
-          id: 't1',
-          name: "Campo Frente",
-          price: 95.00,
-          salesEndDate: "31/01/2026",
-          includesTicket: true
-        },
-        {
-          id: 't2',
-          name: "Campo Fundo",
-          price: 85.00,
-          salesEndDate: "31/01/2026",
-          includesTicket: true
-        },
-        {
-          id: 't3',
-          name: "Arquibancada Leste",
-          price: 75.00,
-          salesEndDate: "31/01/2026",
-          includesTicket: true
-        },
-        {
-          id: 't4',
-          name: "Arquibancada Oeste",
-          price: 85.00,
-          salesEndDate: "31/01/2026",
-          includesTicket: true
-        },
-        {
-          id: 't5',
-          name: "Kit The Send",
-          price: 149.00,
-          salesEndDate: "31/01/2026",
-          includesTicket: false,
-          description: "Não inclui ingresso"
-        }
-      ] as TicketType[]
-    },
-    {
-      id: 'f2e3d4c5-b6a7-4890-c123-d4e5f6a7b890',
-      title: "Forró Luar do Sertão",
-      description: "Dance a noite toda sob as estrelas ao som da sanfona, zabumba e triângulo. Uma experiência única em contato com a natureza, onde a música tradicional do forró encontra a magia do luar sertanejo.",
-      date: "Sábado, 15 de Agosto de 2024",
-      time: "20:00",
-      location: "Arena ao Ar Livre, Avenida Central, 456, Bairro Novo, Uberlândia",
-      city: "Uberlândia",
-      imageUrl: "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=800&q=80",
-      ticketTypes: [
-        {
-          id: 't1',
-          name: "Pista Premium",
-          price: 60.00,
-          salesEndDate: "15/08/2024",
-          includesTicket: true
-        },
-        {
-          id: 't2',
-          name: "Pista Comum",
-          price: 50.00,
-          salesEndDate: "15/08/2024",
-          includesTicket: true
-        }
-      ] as TicketType[]
-    },
-    {
-      id: 'c3d4e5f6-a7b8-4901-d234-e5f6a7b8c901',
-      title: "Festival Raízes do Forró",
-      description: "Um final de semana inteiro celebrando a música e a cultura do forró. Múltiplas atrações, comidas típicas e muita animação. Venha viver a experiência completa do melhor do forró brasileiro.",
-      date: "5-7 de Setembro de 2024",
-      time: "18:00",
-      location: "Grande Salão de Festas, Rua Principal, 789, Centro, Uberlândia",
-      city: "Uberlândia",
-      imageUrl: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&q=80",
-      ticketTypes: [
-        {
-          id: 't1',
-          name: "Ingresso Único",
-          price: 80.00,
-          salesEndDate: "07/09/2024",
-          includesTicket: true
-        }
-      ] as TicketType[]
-    }
-  ]
+  // Buscar evento do contexto
+  const eventData = events.find(e => e.id === eventId)
+  
+  // Converter lots para ticketTypes para compatibilidade com a interface existente
+  const event = eventData ? {
+    id: eventData.id,
+    title: eventData.title,
+    description: eventData.longDescription || eventData.description || '',
+    date: eventData.date,
+    time: eventData.openingTime || '20:00',
+    location: eventData.location,
+    city: eventData.city || '',
+    imageUrl: eventData.imageUrl,
+    ticketTypes: (eventData.lots || []).map((lot, index) => ({
+      id: lot.id,
+      name: lot.name,
+      price: lot.price,
+      salesEndDate: lot.endDate,
+      includesTicket: true
+    })) as TicketType[]
+  } : null
 
-  const event = events.find(e => e.id === eventId) || events[0]
+  if (!event) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-grow flex items-center justify-center">
+          <p className="text-brown text-xl">Evento não encontrado</p>
+        </main>
+        <Footer />
+      </div>
+    )
+  }
 
   // Calcular parcelamento (12x sem juros)
   const calculateInstallment = (price: number) => {
@@ -176,8 +113,8 @@ const EventDetail = () => {
       <Header />
       
       <main className="flex-grow pt-24">
-        <div className="w-full px-3 py-6 sm:px-4 sm:py-8 md:px-8 md:py-12">
-          <div className="max-w-7xl mx-auto">
+        <div className="w-full">
+          <div className="max-w-7xl mx-auto px-3 pb-6 sm:px-4 sm:pb-8 md:px-8 md:pb-12">
             {/* Layout de duas colunas */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
               {/* Coluna Esquerda - Detalhes do Evento */}
@@ -187,8 +124,7 @@ const EventDetail = () => {
                   <div 
                     className="w-full h-64 sm:h-80 md:h-96 bg-cover bg-center bg-gray-800"
                     style={{
-                      backgroundImage: `url(${event.imageUrl})`,
-                      filter: 'grayscale(100%)'
+                      backgroundImage: `url(${event.imageUrl})`
                     }}
                   ></div>
                 </div>
@@ -415,14 +351,17 @@ const EventDetail = () => {
 
                     {/* Botão de Ação */}
                     <div className="px-4 sm:px-5 pb-4">
-                      <Button
-                        variant="primary"
+                      <button
                         onClick={handlePurchase}
                         disabled={!hasSelectedTickets}
-                        className={`py-3 sm:py-4 text-base sm:text-lg ${!hasSelectedTickets ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        className={`w-full py-3 sm:py-4 text-base sm:text-lg font-medium transition-all bg-primary hover:bg-primary-dark text-white shadow-[4px_4px_0_0_#000] hover:shadow-[3px_3px_0_0_#000] hover:translate-x-[1px] hover:translate-y-[1px] active:shadow-[2px_2px_0_0_#000] active:translate-x-[2px] active:translate-y-[2px] ${!hasSelectedTickets ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        style={{ 
+                          border: '2px solid #3D2817',
+                          boxSizing: 'border-box'
+                        }}
                       >
                         {hasSelectedTickets ? 'Continuar Compra' : 'Selecione um Ingresso'}
-                      </Button>
+                      </button>
                     </div>
 
                     {/* Link para Taxas */}
