@@ -4,6 +4,7 @@ import EventCardHome from '../components/EventCardHome'
 import Footer from '../components/Footer'
 import LocationFilter from '../components/LocationFilter'
 import CordelTitleSection from '../components/CordelTitleSection'
+import SearchInput from '../components/SearchInput'
 import { useEvents } from '../contexts/EventsContext'
 
 const Home = () => {
@@ -143,7 +144,14 @@ const Home = () => {
   // Detectar localização do usuário ao carregar a página
   useEffect(() => {
     // Verificar se já detectou a localização (evitar múltiplas chamadas)
-    if (locationDetected || selectedCity) return
+    if (locationDetected) return
+    
+    // Desabilitar detecção automática em desenvolvimento (localhost) devido a problemas de CORS
+    const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    if (isDevelopment) {
+      console.log('Detecção automática de localização desabilitada em desenvolvimento devido a CORS')
+      return
+    }
     
     // Verificar se o navegador suporta geolocalização
     if (!navigator.geolocation) {
@@ -155,16 +163,38 @@ const Home = () => {
     const getCityFromCoordinates = async (lat: number, lon: number): Promise<string | null> => {
       try {
         // Usando OpenStreetMap Nominatim API (gratuita, sem necessidade de API key)
+        // IMPORTANTE: Nominatim requer um User-Agent identificável e tem políticas de uso
+        // Em produção, considere usar um proxy no backend para evitar problemas de CORS
+        
+        // Tentar usar uma API alternativa que funciona melhor com CORS
+        // Usando a API do MapBox (requer token, mas tem melhor suporte) ou
+        // Usar uma solução via proxy no backend
+        
+        // Por enquanto, vamos tentar o Nominatim com tratamento melhor de erros
         const response = await fetch(
-          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&addressdetails=1`,
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&addressdetails=1&zoom=10`,
           {
+            method: 'GET',
             headers: {
-              'User-Agent': 'BaileAntecipado/1.0' // Nominatim requer User-Agent
-            }
+              'User-Agent': 'BaileAntecipado/1.0 (https://baileantecipado.com.br; contato@baileantecipado.com.br)',
+              'Accept-Language': 'pt-BR,pt;q=0.9',
+              'Referer': window.location.origin
+            },
+            mode: 'cors', // Explicitamente definir CORS
+            credentials: 'omit' // Não enviar cookies
           }
         )
         
-        if (!response.ok) return null
+        if (!response.ok) {
+          // Se for 403, pode ser bloqueio por CORS ou rate limiting
+          if (response.status === 403) {
+            console.warn('Acesso negado pela API Nominatim. Isso pode ser devido a CORS ou rate limiting.')
+            console.warn('Em desenvolvimento, a detecção automática está desabilitada. Use a seleção manual de cidade.')
+          } else {
+            console.warn('Erro ao obter cidade da API Nominatim:', response.status, response.statusText)
+          }
+          return null
+        }
         
         const data = await response.json()
         const city = data.address?.city || data.address?.town || data.address?.municipality || data.address?.county
@@ -184,8 +214,14 @@ const Home = () => {
         )
         
         return matchedCity || null
-      } catch (error) {
-        console.error('Erro ao obter cidade:', error)
+      } catch (error: any) {
+        // Tratar especificamente erros de CORS
+        if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+          console.warn('Erro de CORS ao acessar API de geolocalização. Em desenvolvimento, use a seleção manual de cidade.')
+          console.warn('Em produção, considere implementar um proxy no backend para evitar problemas de CORS.')
+        } else {
+          console.error('Erro ao obter cidade:', error)
+        }
         return null
       }
     }
@@ -194,6 +230,9 @@ const Home = () => {
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         const { latitude, longitude } = position.coords
+        
+        // Adicionar um pequeno delay antes de fazer a requisição para respeitar rate limiting
+        await new Promise(resolve => setTimeout(resolve, 1000))
         
         // Obter cidade a partir das coordenadas
         const city = await getCityFromCoordinates(latitude, longitude)
@@ -249,12 +288,26 @@ const Home = () => {
       <Header />
       
       <main className="flex-grow pt-20 overflow-x-hidden">
-        <section className="w-full px-3 py-[1.05rem] sm:px-4 sm:py-[1.4rem] md:px-8 md:py-[2.1rem]">
+        <section className="w-full px-3 pb-[1.05rem] sm:px-4 sm:pb-[1.4rem] md:px-8 md:pb-[2.1rem]">
           <div className="max-w-7xl mx-auto">
             {/* Campo de Pesquisa e Filtro de Localização */}
             <div className="mb-3 sm:mb-4">
-              <div className="flex flex-col sm:flex-row gap-3 items-center justify-center max-w-2xl mx-auto">
-                {/* Filtro de Localização - à esquerda */}
+              <div className="flex flex-row gap-3 items-center justify-center max-w-2xl mx-auto">
+                {/* Campo de Pesquisa - ocupa o restante do espaço */}
+                <SearchInput
+                  value={searchQuery}
+                  onChange={setSearchQuery}
+                  placeholderTexts={[
+                    'Pesquise o baile pelo nome',
+                    'Vai de forró hj?',
+                    'Qual xaxadão você tá procurando?',
+                    'Um baião não se recusa',
+                    'Já dançou hoje? Que tal um xote?'
+                  ]}
+                  placeholderInterval={5000}
+                />
+                
+                {/* Filtro de Localização - à direita */}
                 <div className="flex-shrink-0">
                   <LocationFilter
                     selectedCity={selectedCity}
@@ -263,33 +316,25 @@ const Home = () => {
                     allCities={allCities}
                   />
                 </div>
-                
-                {/* Campo de Pesquisa - ocupa o restante do espaço */}
-                <div className="relative flex-1 w-full">
-                  <input
-                    type="text"
-                    placeholder="Pesquisar eventos..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full px-4 py-2.5 sm:py-3 border-2 border-brown bg-white hover:bg-beige-light text-brown placeholder-brown/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary font-serif text-sm sm:text-base shadow-[2px_2px_0px_0px_rgba(61,40,23,1)] hover:shadow-[1px_1px_0px_0px_rgba(61,40,23,1)] hover:translate-x-[1px] hover:translate-y-[1px] transition-all"
-                  />
-                  <svg 
-                    className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-brown/50" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                </div>
               </div>
             </div>
 
             {/* Bloco de Eventos em Destaque */}
             {featuredEvents.length > 0 && (
               <div className="mb-12">
-                <CordelTitleSection title="Bailes só o luxo" />
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                <CordelTitleSection title="Bailes só o luxo" className="mt-6" />
+                <div 
+                  className={`grid gap-4 ${
+                    featuredEvents.length === 1 
+                      ? 'grid-cols-1 justify-items-center' 
+                      : featuredEvents.length === 2 
+                      ? 'grid-cols-1 sm:grid-cols-2 justify-items-center' 
+                      : featuredEvents.length === 3 
+                      ? 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 justify-items-center' 
+                      : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-4'
+                  }`}
+                  style={featuredEvents.length < 4 ? { maxWidth: 'fit-content', margin: '0 auto' } : {}}
+                >
                   {featuredEvents.map((event) => (
                     <EventCardHome
                       key={event.id}
@@ -312,10 +357,21 @@ const Home = () => {
             {/* Bloco de Todos os Eventos */}
             {allEvents.length > 0 && (
               <div>
-                <h2 className="text-2xl font-serif font-bold text-brown mb-6 text-center">
+                <h2 className="text-2xl font-bold text-brown mb-6 text-center" style={{ fontFamily: 'SpecialElite, serif' }}>
                   Todos os Eventos
                 </h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                <div 
+                  className={`grid gap-4 ${
+                    allEvents.length === 1 
+                      ? 'grid-cols-1 justify-items-center' 
+                      : allEvents.length === 2 
+                      ? 'grid-cols-1 sm:grid-cols-2 justify-items-center' 
+                      : allEvents.length === 3 
+                      ? 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 justify-items-center' 
+                      : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-4'
+                  }`}
+                  style={allEvents.length < 4 ? { maxWidth: 'fit-content', margin: '0 auto' } : {}}
+                >
                   {allEvents.map((event) => (
                     <EventCardHome
                       key={event.id}
